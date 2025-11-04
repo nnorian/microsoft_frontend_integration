@@ -1,0 +1,37 @@
+@page "/fetchproducts"
+
+<h3>Product List</h3>
+
+<ul>
+   @if (products != null)
+    {
+        foreach (var product in products)
+        {
+            <li>@product.Name - $@product.Price</li>
+        }
+    }
+    else
+    {
+        <li>Loading...</li>
+    }
+</ul>
+
+@inject HttpClient Http
+@code {
+    private Product[]? products;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        // Call the API endpoint and deserialize the response
+        products = await Http.GetFromJsonAsync<Product[]>("api/products");
+    }
+
+    public class Product
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public double Price { get; set; }
+        public int Stock { get; set; }
+    }
+}
+
