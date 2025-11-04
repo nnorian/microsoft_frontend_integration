@@ -2,28 +2,95 @@
 
 <h3>Product List</h3>
 
-<ul>
-   @if (products != null)
-    {
-        foreach (var product in products)
-        {
-            <li>@product.Name - $@product.Price</li>
-        }
-    }
-    else
-    {
-        <li>Loading...</li>
-    }
-</ul>
+@if (isLoading)
+{
+    <p><em>Loading products...</em></p>
+}
+else if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div style="color: red;">
+        <strong>Error:</strong> @errorMessage
+    </div>
+}
+else if (products != null && products.Length > 0)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Stock</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var product in products)
+            {
+                <tr>
+                    <td>@product.Id</td>
+                    <td>@product.Name</td>
+                    <td>$@product.Price.ToString("F2")</td>
+                    <td>@product.Stock</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No products found.</p>
+}
 
 @inject HttpClient Http
+@using System.Text.Json
 @code {
     private Product[]? products;
-    
+    private bool isLoading = true;
+    private string? errorMessage;
+
     protected override async Task OnInitializedAsync()
     {
-        // Call the API endpoint and deserialize the response
-        products = await Http.GetFromJsonAsync<Product[]>("api/products");
+        try
+        {
+            // Call the API endpoint with explicit error handling
+            var response = await Http.GetAsync("api/productlist");
+            response.EnsureSuccessStatusCode();
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            // Log JSON for debugging
+            Console.WriteLine($"Received JSON: {json}");
+
+            // Deserialize with error handling
+            products = JsonSerializer.Deserialize<Product[]>(json, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            if (products == null || products.Length == 0)
+            {
+                errorMessage = "No products found in the API response.";
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            errorMessage = $"Network error: {ex.Message}. Make sure the ServerApp is running on http://localhost:5083";
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+        catch (JsonException ex)
+        {
+            errorMessage = $"JSON parsing error: {ex.Message}. The API response format is invalid.";
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Unexpected error: {ex.Message}";
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 
     public class Product
