@@ -2,7 +2,7 @@
 
 A complete full-stack inventory management application built with Blazor WebAssembly and ASP.NET Core Minimal API, demonstrating modern web development practices with performance optimizations.
 
-## 🏗️Architecture
+## Architecture
 
 ### Front-end: Blazor WebAssembly (ClientApp)
 - **Framework**: .NET 9.0 Blazor WebAssembly
@@ -195,7 +195,7 @@ Returns a list of products with nested category information.
 **Cache Headers**:
 - `Cache-Control: public, max-age=300` (5 minutes)
 
-## 🎯Performance Optimizations
+## Performance Optimizations
 
 ### Back-end
 | Optimization | Implementation | Benefit |
@@ -257,6 +257,6 @@ Educational project - see course materials for licensing information.
 
 ---
 
-**Project Status**: ✅ Complete - All activities and optimizations implemented
+**Project Status**: Complete - All activities and optimizations implemented
 
 **Last Updated**: November 2025
