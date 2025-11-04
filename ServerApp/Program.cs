@@ -1,5 +1,3 @@
-Minimal API Back-End (ServerApp.cs):
-
 var builder = WebApplication.CreateBuilder(args);
 
 var app = builder.Build();
