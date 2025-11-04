@@ -21,6 +21,7 @@ else if (products != null && products.Length > 0)
                 <th>Name</th>
                 <th>Price</th>
                 <th>Stock</th>
+                <th>Category</th>
             </tr>
         </thead>
         <tbody>
@@ -31,6 +32,7 @@ else if (products != null && products.Length > 0)
                     <td>@product.Name</td>
                     <td>$@product.Price.ToString("F2")</td>
                     <td>@product.Stock</td>
+                    <td>@(product.Category?.Name ?? "N/A")</td>
                 </tr>
             }
         </tbody>
@@ -99,6 +101,13 @@ else
         public string Name { get; set; } = string.Empty;
         public double Price { get; set; }
         public int Stock { get; set; }
+        public Category? Category { get; set; }
+    }
+
+    public class Category
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
     }
 }
 
