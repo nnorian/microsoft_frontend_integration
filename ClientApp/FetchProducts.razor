@@ -44,16 +44,35 @@ else
 }
 
 @inject HttpClient Http
+@inject ProductCache ProductCache
 @using System.Text.Json
+@using ClientApp.Services
 @code {
     private Product[]? products;
     private bool isLoading = true;
     private string? errorMessage;
+    private DateTime? lastFetchTime;
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadProductsAsync();
+    }
+
+    private async Task LoadProductsAsync()
+    {
+        isLoading = true;
+        errorMessage = null;
+
         try
         {
+            // Check if we have cached data (avoid redundant API calls)
+            if (ProductCache.HasValidCache())
+            {
+                products = ProductCache.GetProducts();
+                Console.WriteLine("Using cached products");
+                return;
+            }
+
             // Call the API endpoint with explicit error handling
             var response = await Http.GetAsync("api/productlist");
             response.EnsureSuccessStatusCode();
@@ -72,6 +91,12 @@ else
             if (products == null || products.Length == 0)
             {
                 errorMessage = "No products found in the API response.";
+            }
+            else
+            {
+                // Cache the products for 5 minutes
+                ProductCache.SetProducts(products);
+                lastFetchTime = DateTime.Now;
             }
         }
         catch (HttpRequestException ex)
@@ -93,21 +118,6 @@ else
         {
             isLoading = false;
         }
-    }
-
-    public class Product
-    {
-        public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public double Price { get; set; }
-        public int Stock { get; set; }
-        public Category? Category { get; set; }
-    }
-
-    public class Category
-    {
-        public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
     }
 }
 
